@@ -1,7 +1,17 @@
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
 
-const SideCart = ({ carts }) => {
+const SideCart = ({ carts,setCarts }) => {
+
+  const handleDelete = (productId) => {
+    const cart = JSON.parse(localStorage.getItem('carts')) || [];
+    const updatedCart = cart.filter(product => product.id !== productId);
+    setCarts(updatedCart);
+    localStorage.setItem('carts', JSON.stringify(updatedCart));
+  };
+
+
   const splitTitle = (str, num) => {
     if (str.length <= num) {
       return str;
@@ -17,11 +27,13 @@ const SideCart = ({ carts }) => {
     for (let i = 0; i < maxRating; i++) {
       stars.push(
         <input
+          key={i}
           type="radio"
-          name="rating-7"
+          name={`rating-${rate}-${i}`}
           className={`mask mask-star-2 ${
             i < filledStars ? "bg-orange-400" : "bg-gray-400"
           }`}
+          readOnly
         />
       );
     }
@@ -32,13 +44,13 @@ const SideCart = ({ carts }) => {
   const totalPrice = carts?.reduce((total, product) => total + product.price, 0).toFixed(2);
 
   return (
-    <div className="border rounded-md p-2 h-fit border-gray-600 hidden lg:flex lg:flex-col xl:col-span-2 ">
+    <div  className="border rounded-md p-2 h-fit border-gray-600 hidden lg:flex lg:flex-col xl:col-span-2 ">
       <button className="w-full btn uppercase tracking-widest inter-font  bg-black py-[6px]  px-3  text-white  text-xs font-bold">
         Selected Products
       </button>
 
       <div className="my-5 flex flex-col gap-5">
-        {carts?.length>0 && carts?.map((product) => (
+        {carts?.length > 0 && carts?.map((product) => (
           <div key={product?.id} className="card card-side border rounded-md bg-[#F7F8F8] items-center grid grid-cols-3">
             <figure className="bg-white p-3 h-full">
               {" "}
@@ -57,20 +69,17 @@ const SideCart = ({ carts }) => {
               <div className="flex justify-between gap-2 xl:gap-5 items-start">
                
                 <div className="card-actions flex-col gap-0 ">
-                <div className="rating rating-sm">
-                  {calRating(product.rating.rate)}
-                </div> 
-                <h1 className="text-[#ADB0B7] mt-1 font-normal text-sm inter-font">
-                  ({product.rating.count} Review)
-                </h1> 
-                <h1 className="font-bold text-[#F2415A] inter-font text-lg mt-3">
-                    ${product.price}
-                  </h1>
-                 
+                  <div className="rating rating-sm">
+                    {calRating(product.rating.rate)}
+                  </div> 
+                  <h1 className="text-[#ADB0B7] mt-1 font-normal text-sm inter-font">
+                    ({product.rating.count} Review)
+                  </h1> 
+                  <h1 className="font-bold text-[#F2415A] inter-font text-lg mt-3">
+                      ${product.price}
+                    </h1>
                 </div>
-                <button
-                 
-                    className=" bg-transparent text-[#F2415A] border-0 font-normal p-0 text-2xl"
+                <button  onClick={() => handleDelete(product.id)}  className=" bg-transparent text-[#F2415A] border-0 font-normal p-0 text-2xl"
                   >
                    <RiDeleteBinLine />
                   </button>

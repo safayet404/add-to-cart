@@ -67,8 +67,9 @@ export default function Home() {
             setAllProducts={setAllProducts}
             setCarts={setCarts}
             carts={carts}
+            
           />
-          <SideCart carts={carts}/>
+          <SideCart carts={carts}  setCarts={setCarts}/>
         </div>
         <Pagination
           currentPage={currentPage}

@@ -17,7 +17,8 @@ const ProductDesign = ({
         setAllProducts(res.data);
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [setAllProducts]);
+  
 
   const splitTitle = (str, num) => {
     if (str.length <= num) {
@@ -54,7 +55,7 @@ const ProductDesign = ({
   useEffect(() => {
     const savedCarts = JSON.parse(localStorage.getItem("carts")) || [];
     setCarts(savedCarts);
-  }, []);
+  }, [setCarts]);
 
 
   return (
