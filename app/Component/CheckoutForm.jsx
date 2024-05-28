@@ -28,6 +28,13 @@ const CheckoutForm = ({ carts }) => {
         }
     }, []);
 
+    const splitTitle = (str, num) => {
+        if (str.length <= num) {
+          return str;
+        }
+        return str.slice(0, num) + " ...";
+      };
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -61,8 +68,7 @@ const CheckoutForm = ({ carts }) => {
         const columnWidths = [tableWidth * 0.5, tableWidth * 0.2, tableWidth * 0.3]; // Adjust as needed
         const rowHeight = 30; // Adjust as needed
 
-        page.drawText('Thank you for your order. Your order is being processed', { x: 20, y, size: fontSize, font });
-        y -= rowHeight * 2;
+        let y = height - 50; // Adjust as needed
 
         // Draw table headers
         page.drawText('Description', { x: 20, y, size: fontSize, font });
@@ -77,7 +83,7 @@ const CheckoutForm = ({ carts }) => {
                 page = pdfDoc.addPage();
                 y = height - 50;
             }
-            page.drawText(product.title, { x: 20, y, size: fontSize, font });
+            page.drawText( splitTitle(product.title, 26), { x: 20, y, size: fontSize, font });
             page.drawText("x1", { x: 20 + columnWidths[0], y, size: fontSize, font });
             page.drawText(`$${product.price.toFixed(2)}`, { x: 20 + columnWidths[0] + columnWidths[1], y, size: fontSize, font });
         });

@@ -111,9 +111,9 @@ const SideCart = ({ carts,setCarts }) => {
       </div>
       <div className="flex justify-end">
 
-      {/* <button   onClick={() => onCheckout(carts)} className=" mt-5 btn uppercase tracking-widest inter-font  bg-black py-[6px]  px-3  text-white  text-xs font-bold">
+      <button   onClick={() => onCheckout(carts)} className=" mt-5 btn uppercase tracking-widest inter-font  bg-black py-[6px]  px-3  text-white  text-xs font-bold">
        <Link href="/checkout"> Checkout </Link>
-      </button> */}
+      </button>
       </div>
 
      
