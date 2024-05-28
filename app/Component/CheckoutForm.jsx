@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RiDeleteBinLine } from "react-icons/ri";
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
-import { PDFDocument, PDFLibStandardFonts,degrees, rgb } from 'pdf-lib';
-import { StandardFonts } from 'pdf-lib';
 const CheckoutForm = ({ carts }) => {
 
     const initialFormData = {
@@ -11,16 +10,23 @@ const CheckoutForm = ({ carts }) => {
         company: "",
         region: "",
         address: "",
-        phone: ""
+        phone: "",
+        shippingName: "",
+        shippingEmail: "",
+        shippingAddress: ""
     }
-
-
 
     const [orderData, setOrderData] = useState([]);
     const [formData, setFormData] = useState(initialFormData);
-
     const [invoiceVisible, setInvoiceVisible] = useState(false);
+    const [cart, setCart] = useState([]);
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const storedCart = JSON.parse(localStorage.getItem('carts')) || [];
+            setCart(storedCart);
+        }
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,119 +38,101 @@ const CheckoutForm = ({ carts }) => {
             ...formData,
             cart
         };
-        setOrderData(orderDatas)
+        setOrderData(orderDatas);
 
         setFormData(initialFormData);
         setInvoiceVisible(true);
-
     };
-    
-    const cart = JSON.parse(localStorage.getItem('carts')) || [];
-   
-    const totalPrice = cart?.reduce((total, product) => total + product.price, 0).toFixed(2);
+
+    const totalPrice = cart.reduce((total, product) => total + product.price, 0).toFixed(2);
 
     const generateInvoice = async () => {
-        if (!formData || !cart || !cart.length) {
+        if (!formData || !cart.length) {
             return null;
         }
-    
+
         const pdfDoc = await PDFDocument.create();
-        let page = pdfDoc.addPage(); // Change const to let here
+        let page = pdfDoc.addPage();
         const { width, height } = page.getSize();
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const fontSize = 12;
-        const tableHeight = 20; // Adjust as needed
-        const tableWidth = width - 40; // Adjust as needed
-        const columnWidths = [tableWidth * 0.5, tableWidth * 0.2, tableWidth * 0.3]; // Adjust as needed
-        const rowHeight = 30; // Adjust as needed
-    
-        let y = height - 50; // Adjust as needed
-    
-        // Draw table headers
+        const rowHeight = 20;
+
+        let y = height - 50;
+
+        page.drawText('Thank you for your order. Your order is being processed', { x: 20, y, size: fontSize, font });
+        y -= rowHeight * 2;
+
         page.drawText('Description', { x: 20, y, size: fontSize, font });
-        page.drawText('Quantity', { x: 20 + columnWidths[0], y, size: fontSize, font });
-        page.drawText('Price', { x: 20 + columnWidths[0] + columnWidths[1], y, size: fontSize, font });
+        page.drawText('Quantity', { x: 220, y, size: fontSize, font });
+        page.drawText('Price', { x: 320, y, size: fontSize, font });
         y -= rowHeight;
-    
-        // Draw table rows
+
         cart.forEach((product) => {
-            y -= rowHeight;
             if (y < 50) {
                 page = pdfDoc.addPage();
                 y = height - 50;
             }
             page.drawText(product.title, { x: 20, y, size: fontSize, font });
-            page.drawText("x1", { x: 20 + columnWidths[0], y, size: fontSize, font });
-            page.drawText(`$${product.price.toFixed(2)}`, { x: 20 + columnWidths[0] + columnWidths[1], y, size: fontSize, font });
+            page.drawText("x1", { x: 220, y, size: fontSize, font });
+            page.drawText(`$${product.price.toFixed(2)}`, { x: 320, y, size: fontSize, font });
+            y -= rowHeight;
         });
-    
-        const shippingY =  y - rowHeight;
-        page.drawText('Shipping:', { x: 20, y: shippingY, size: fontSize, font, color: rgb(0, 0, 0) });
-        page.drawText('Free', { x: 20 + columnWidths[0] + columnWidths[1], y: shippingY, size: fontSize, font, color: rgb(0, 0, 0) });
-        // Display total amount
-        const totalY = shippingY - rowHeight;
-        page.drawText('Total:', { x: 20, y: totalY, size: fontSize, font, color: rgb(0, 0, 0) });
-        page.drawText(`$${totalPrice}`, { x: 20 + columnWidths[0] + columnWidths[1], y: totalY, size: fontSize, font, color: rgb(0, 0, 0) });
 
-    
-        // Display billing address
-        const addressY = totalY - rowHeight;
-        const billingAddress = `Billing Address:\n${orderData.name}\n${orderData.email}\n${orderData.phone}\n ${orderData.address}`;
-        page.drawText(billingAddress, { x: 20, y: addressY, size: fontSize, font, color: rgb(0, 0, 0) });
-
-        const shippingAddress = `Shipping Address:\n${orderData.name}\n${orderData.email}\n${orderData.phone}\n ${orderData.address}`;
-    page.drawText(shippingAddress, { x: width / 2, y: addressY, size: fontSize, font, color: rgb(0, 0, 0) });
-    
         page.drawLine({
-            start: { x: 20, y: shippingY - 10 },
-            end: { x: width - 20, y: shippingY - 10 },
+            start: { x: 20, y: y - 10 },
+            end: { x: width - 20, y: y - 10 },
             thickness: 1,
             color: rgb(0, 0, 0),
         });
-        page.drawLine({
-            start: { x: 20, y: totalY - 10 },
-            end: { x: width - 20, y: totalY - 10 },
-            thickness: 1,
-            color: rgb(0, 0, 0),
-        });
+
+        y -= rowHeight;
+        page.drawText('Total:', { x: 20, y, size: fontSize, font, color: rgb(0, 0, 0) });
+        page.drawText(`$${totalPrice}`, { x: 320, y, size: fontSize, font, color: rgb(0, 0, 0) });
+
+        y -= rowHeight;
+        const shippingCharge = 10;
+        page.drawText('Shipping Charge:', { x: 20, y, size: fontSize, font, color: rgb(0, 0, 0) });
+        page.drawText(`$${shippingCharge.toFixed(2)}`, { x: 320, y, size: fontSize, font, color: rgb(0, 0, 0) });
+
+        y -= rowHeight;
+        page.drawText('Billing Address:', { x: 20, y, size: fontSize, font, color: rgb(0, 0, 0) });
+        page.drawText(`${formData.name}\n${formData.email}\n${formData.address}`, { x: 20, y: y - 40, size: fontSize, font, color: rgb(0, 0, 0) });
+
+        page.drawText('Shipping Address:', { x: 320, y, size: fontSize, font, color: rgb(0, 0, 0) });
+        page.drawText(`${formData.shippingName}\n${formData.shippingEmail}\n${formData.shippingAddress}`, { x: 320, y: y - 40, size: fontSize, font, color: rgb(0, 0, 0) });
+
         const pdfBytes = await pdfDoc.save();
         return pdfBytes;
     };
-    
-    
-    
-    
-    
+
     const downloadInvoice = async () => {
         try {
             if (!orderData || !orderData.name || !orderData.email || !orderData.address) {
                 throw new Error('Incomplete order information');
             }
-    
-            if (!cart || !cart.length) {
+
+            if (!cart.length) {
                 throw new Error('No items in the cart');
             }
-    
+
             const pdfBytes = await generateInvoice();
-    
+
             if (!pdfBytes) {
                 throw new Error('Failed to generate invoice');
             }
-    
+
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'invoice.pdf';
             link.click();
-    
-            // Optional: Revoke the object URL after download
+
             URL.revokeObjectURL(link.href);
         } catch (error) {
             console.error('Error downloading invoice:', error.message);
         }
     };
-    
-    
 
     return (
         <div className='grid grid-cols-2 place-items-center'>
