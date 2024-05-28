@@ -1,8 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
+import CheckoutForm from "./CheckoutForm";
 
 const SideCart = ({ carts,setCarts }) => {
+
 
   const handleDelete = (productId) => {
     const cart = JSON.parse(localStorage.getItem('carts')) || [];
@@ -108,10 +111,12 @@ const SideCart = ({ carts,setCarts }) => {
       </div>
       <div className="flex justify-end">
 
-      <button className=" mt-5 btn uppercase tracking-widest inter-font  bg-black py-[6px]  px-3  text-white  text-xs font-bold">
-        Checkout
+      <button   onClick={() => onCheckout(carts)} className=" mt-5 btn uppercase tracking-widest inter-font  bg-black py-[6px]  px-3  text-white  text-xs font-bold">
+       <Link href="/checkout"> Checkout </Link>
       </button>
       </div>
+
+     
     </div>
   );
 };

@@ -4,12 +4,15 @@ import ProductDesign from "./Component/ProductDesign";
 import ProductLayout from "./Component/ProductLayout";
 import SideCart from "./Component/SideCart";
 import { useState } from "react";
-
+import Checkout from "./checkout/page";
+import CheckoutForm from "./Component/CheckoutForm";
+import create from 'zustand';
 
 export default function Home() {
   const [layout, setLayout] = useState("grid");
   const [allProduct, setAllProducts] = useState([]);
   const [carts, setCarts] = useState([]);
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
@@ -71,6 +74,10 @@ export default function Home() {
           />
           <SideCart carts={carts}  setCarts={setCarts}/>
         </div>
+       
+        
+        
+         
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

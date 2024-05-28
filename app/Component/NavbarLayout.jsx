@@ -37,6 +37,7 @@ const NavbarLayout = () => {
                 )}
               </Link>
             </li>
+           
           </ul>
         </div>
         <div className="navbar-end">

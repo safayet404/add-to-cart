@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 
 .inter-font {
   font-family: "Inter", sans-serif;
@@ -10,4 +11,8 @@
   font-family: "Poppins", sans-serif;
   font-weight: 500;
   font-style: normal;
+}
+
+.margin-le{
+  margin-left: 100px !important;
 }
