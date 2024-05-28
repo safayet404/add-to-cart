@@ -123,6 +123,7 @@ const CheckoutForm = ({ carts }) => {
 
     const downloadInvoice = async () => {
         try {
+            
             if (!orderData || !orderData.name || !orderData.email || !orderData.address) {
                 throw new Error('Incomplete order information');
             }
@@ -144,6 +145,7 @@ const CheckoutForm = ({ carts }) => {
             link.click();
 
             URL.revokeObjectURL(link.href);
+            localStorage.removeItem("carts"); 
         } catch (error) {
             console.error('Error downloading invoice:', error.message);
         }
