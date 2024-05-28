@@ -37,6 +37,14 @@ const NavbarLayout = () => {
                 )}
               </Link>
             </li>
+            <li>
+              <Link href="/checkout" onClick={() => handleLinkClick("/checkout")}>
+                Checkout
+                {pathname === "/cart" && (
+                  <div className="mt-2 w-5 h-[2px] bg-white rounded-full"></div>
+                )}
+              </Link>
+            </li>
            
           </ul>
         </div>
@@ -64,6 +72,13 @@ const NavbarLayout = () => {
                   
                 </Link>
               </li>
+              <li className="py-1">
+                <Link href="/checkout" onClick={() => handleLinkClick("/checkout")}>
+                 Checkout
+                  
+                </Link>
+              </li>
+           
               <li className="w-full">
                 <a className="h-[42px] flex justify-center items-center text-sm font-semibold tracking-widest hover:border-[#525CEB] hover:border hover:bg-white hover:text-[#525CEB] transition-all ease-in-out duration-300 rounded bg-[#525CEB] border-[#525CEB] outline-none text-white uppercase w-full">
                   Login

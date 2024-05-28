@@ -47,61 +47,70 @@ const CheckoutForm = ({ carts }) => {
     const totalPrice = cart.reduce((total, product) => total + product.price, 0).toFixed(2);
 
     const generateInvoice = async () => {
-        if (!formData || !cart.length) {
+        if (!orderData || !cart || !cart.length) {
             return null;
         }
 
         const pdfDoc = await PDFDocument.create();
-        let page = pdfDoc.addPage();
+        let page = pdfDoc.addPage(); // Change const to let here
         const { width, height } = page.getSize();
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const fontSize = 12;
-        const rowHeight = 20;
-
-        let y = height - 50;
+        const tableHeight = 20; // Adjust as needed
+        const tableWidth = width - 40; // Adjust as needed
+        const columnWidths = [tableWidth * 0.5, tableWidth * 0.2, tableWidth * 0.3]; // Adjust as needed
+        const rowHeight = 30; // Adjust as needed
 
         page.drawText('Thank you for your order. Your order is being processed', { x: 20, y, size: fontSize, font });
         y -= rowHeight * 2;
 
+        // Draw table headers
         page.drawText('Description', { x: 20, y, size: fontSize, font });
-        page.drawText('Quantity', { x: 220, y, size: fontSize, font });
-        page.drawText('Price', { x: 320, y, size: fontSize, font });
+        page.drawText('Quantity', { x: 20 + columnWidths[0], y, size: fontSize, font });
+        page.drawText('Price', { x: 20 + columnWidths[0] + columnWidths[1], y, size: fontSize, font });
         y -= rowHeight;
 
+        // Draw table rows
         cart.forEach((product) => {
+            y -= rowHeight;
             if (y < 50) {
                 page = pdfDoc.addPage();
                 y = height - 50;
             }
             page.drawText(product.title, { x: 20, y, size: fontSize, font });
-            page.drawText("x1", { x: 220, y, size: fontSize, font });
-            page.drawText(`$${product.price.toFixed(2)}`, { x: 320, y, size: fontSize, font });
-            y -= rowHeight;
+            page.drawText("x1", { x: 20 + columnWidths[0], y, size: fontSize, font });
+            page.drawText(`$${product.price.toFixed(2)}`, { x: 20 + columnWidths[0] + columnWidths[1], y, size: fontSize, font });
         });
 
+        const shippingY =  y - rowHeight;
+        page.drawText('Shipping:', { x: 20, y: shippingY, size: fontSize, font, color: rgb(0, 0, 0) });
+        page.drawText('Free', { x: 20 + columnWidths[0] + columnWidths[1], y: shippingY, size: fontSize, font, color: rgb(0, 0, 0) });
+        // Display total amount
+        const totalY = shippingY - rowHeight;
+        page.drawText('Total:', { x: 20, y: totalY, size: fontSize, font, color: rgb(0, 0, 0) });
+        page.drawText(`$${totalPrice}`, { x: 20 + columnWidths[0] + columnWidths[1], y: totalY, size: fontSize, font, color: rgb(0, 0, 0) });
+
+
+        // Display billing address
+        const addressY = totalY - rowHeight;
+        const billingAddress = `Billing Address:\n${orderData.name}\n${orderData.email}\n${orderData.phone}\n${orderData.address}`;
+        page.drawText(billingAddress, { x: 20, y: addressY, size: fontSize, font, color: rgb(0, 0, 0) });
+
+        const shippingAddress = `Shipping Address:\n${orderData.name}\n${orderData.email}\n${orderData.phone}\n${orderData.address}`;
+    page.drawText(shippingAddress, { x: width / 2, y: addressY, size: fontSize, font, color: rgb(0, 0, 0) });
+
         page.drawLine({
-            start: { x: 20, y: y - 10 },
-            end: { x: width - 20, y: y - 10 },
+            start: { x: 20, y: shippingY - 10 },
+            end: { x: width - 20, y: shippingY - 10 },
             thickness: 1,
             color: rgb(0, 0, 0),
         });
-
-        y -= rowHeight;
-        page.drawText('Total:', { x: 20, y, size: fontSize, font, color: rgb(0, 0, 0) });
-        page.drawText(`$${totalPrice}`, { x: 320, y, size: fontSize, font, color: rgb(0, 0, 0) });
-
-        y -= rowHeight;
-        const shippingCharge = 10;
-        page.drawText('Shipping Charge:', { x: 20, y, size: fontSize, font, color: rgb(0, 0, 0) });
-        page.drawText(`$${shippingCharge.toFixed(2)}`, { x: 320, y, size: fontSize, font, color: rgb(0, 0, 0) });
-
-        y -= rowHeight;
-        page.drawText('Billing Address:', { x: 20, y, size: fontSize, font, color: rgb(0, 0, 0) });
-        page.drawText(`${formData.name}\n${formData.email}\n${formData.address}`, { x: 20, y: y - 40, size: fontSize, font, color: rgb(0, 0, 0) });
-
-        page.drawText('Shipping Address:', { x: 320, y, size: fontSize, font, color: rgb(0, 0, 0) });
-        page.drawText(`${formData.shippingName}\n${formData.shippingEmail}\n${formData.shippingAddress}`, { x: 320, y: y - 40, size: fontSize, font, color: rgb(0, 0, 0) });
-
+        page.drawLine({
+            start: { x: 20, y: totalY - 10 },
+            end: { x: width - 20, y: totalY - 10 },
+            thickness: 1,
+            color: rgb(0, 0, 0),
+        });
         const pdfBytes = await pdfDoc.save();
         return pdfBytes;
     };
